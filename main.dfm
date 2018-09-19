@@ -1,7 +1,7 @@
 object Form1: TForm1
   Left = 0
   Top = 0
-  Caption = 'Form1'
+  Caption = 'SudoKakuro Solver 0.1'
   ClientHeight = 471
   ClientWidth = 527
   Color = clBtnFace
@@ -32,7 +32,6 @@ object Form1: TForm1
     PopupMenu = PopupMenu1
     ScrollBars = ssBoth
     TabOrder = 0
-    ExplicitHeight = 281
   end
   object BSolve: TButton
     Left = 136
@@ -41,6 +40,7 @@ object Form1: TForm1
     Height = 25
     Anchors = [akLeft, akBottom]
     Caption = 'Solve'
+    Enabled = False
     TabOrder = 1
     OnClick = BSolveClick
   end
@@ -52,7 +52,6 @@ object Form1: TForm1
     Anchors = [akLeft, akBottom]
     Caption = 'Outline Boxes'
     TabOrder = 2
-    ExplicitTop = 303
   end
   object BAddSolution: TButton
     Left = 248
@@ -60,6 +59,7 @@ object Form1: TForm1
     Width = 129
     Height = 25
     Caption = 'Find different solution'
+    Enabled = False
     TabOrder = 3
     OnClick = BAddSolutionClick
   end

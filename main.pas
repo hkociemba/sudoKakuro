@@ -513,7 +513,7 @@ begin
     begin
       if ContainsText(s, 'UNSATISFIABLE') then
       begin
-        Form1.Memo1.Lines.Add('Puzzle is unsolvable.');
+        Form1.Memo1.Lines.Add('UNSATISFIABLE');
         Exit(false);
       end;
       Form1.Memo1.Lines.Add(copy(s, 3, Length(s)) + ':');
@@ -575,7 +575,10 @@ begin
     output, errors);
 
   if decode_solution(output, solution) then
+  begin
     PrintCurrentPuzzle(rc_set);
+    BAddSolution.Enabled := true;
+  end;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -609,6 +612,8 @@ begin
   Memo1.Lines.Add('');
   PrintCurrentPuzzle(sums);
   sl.Free;
+  BSolve.Enabled := true;
+  BAddSolution.Enabled := false;
 end;
 
 function seperatorLine(sz: Integer): String;
@@ -755,6 +760,7 @@ begin
 
   if decode_solution(output, solution) = true then
     PrintCurrentPuzzle(rc_set);
+  BSolve.Enabled := false;
 end;
 
 end.
