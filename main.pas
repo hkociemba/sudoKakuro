@@ -15,6 +15,7 @@ type
     Paste1: TMenuItem;
     CheckOutlineBoxes: TCheckBox;
     BAddSolution: TButton;
+    BReduce: TButton;
     procedure PasteClick(Sender: TObject);
     procedure BSolveClick(Sender: TObject);
     procedure BAddSolutionClick(Sender: TObject);
@@ -432,7 +433,7 @@ begin
   badSet.Free;
 end;
 
-procedure initBitArraysFromString(s: String);
+function initSums(s: String): Boolean;
 var
   i, r, c, n, idx: Integer;
   data: TArray<string>;
@@ -463,15 +464,20 @@ begin
       Inc(idx);
     end;
 
-  for i := 0 to DIM * DIM - 1 do
-  begin
-    r := i div DIM;
-    c := i mod DIM;
-    if (data[i] = '.') or (data[i] = '0') then
-      continue;
-    n := StrToInt(data[i]);
-    sums[i] := n;
+  try
+    for i := 0 to DIM * DIM - 1 do
+    begin
+      r := i div DIM;
+      c := i mod DIM;
+      if (data[i] = '.') or (data[i] = '0') then
+        continue;
+      n := StrToInt(data[i]);
+      sums[i] := n;
+    end;
+  except
+    Exit(false);
   end;
+  result := true;
 end;
 
 function generate_cnf(clauses: TStringList): Integer;
@@ -571,8 +577,7 @@ begin
   generate_cnf(clauses);
   clauses.SaveToFile('cnf.txt');
 
-  GetConsoleOutput('java.exe -server  -jar org.sat4j.core.jar cnf.txt',
-    output, errors);
+  GetConsoleOutput('java.exe -jar org.sat4j.core.jar cnf.txt', output, errors);
 
   if decode_solution(output, solution) then
   begin
@@ -597,17 +602,18 @@ begin
   sl := TStringList.Create;
   s := Clipboard.AsText;
   sl.Text := s;
-  try
-    defstring := makeDefString(sl);
-    initBitArraysFromString(defstring);
-  except
+
+  defstring := makeDefString(sl);
+  if not initSums(defstring) then
+  begin
     Memo1.Lines.Add
-      ('+-------------------------------------------------------+');
-    Memo1.Lines.Add('| Cannot paste puzzle! Wrong format.                  |');
+      ('+-------------------------------------------+');
+    Memo1.Lines.Add('| Cannot paste puzzle! Wrong format.        |');
     Memo1.Lines.Add
-      ('+-------------------------------------------------------+');
+      ('+-------------------------------------------+');
     Memo1.Lines.Add('');
     sl.Free;
+    Exit;
   end;
   Memo1.Lines.Add('');
   PrintCurrentPuzzle(sums);
@@ -756,7 +762,7 @@ procedure TForm1.BAddSolutionClick(Sender: TObject);
 begin
   addSolution;
   solution.Clear;
-  GetConsoleOutput('java.exe -server  -jar org.sat4j.core.jar cnf.txt',
+  GetConsoleOutput('java.exe -jar org.sat4j.core.jar cnf.txt',
     output, errors);
 
   if decode_solution(output, solution) = true then

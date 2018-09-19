@@ -34,8 +34,8 @@ object Form1: TForm1
     TabOrder = 0
   end
   object BSolve: TButton
-    Left = 136
-    Top = 438
+    Left = 111
+    Top = 433
     Width = 75
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -46,7 +46,7 @@ object Form1: TForm1
   end
   object CheckOutlineBoxes: TCheckBox
     Left = 8
-    Top = 438
+    Top = 437
     Width = 97
     Height = 17
     Anchors = [akLeft, akBottom]
@@ -54,14 +54,23 @@ object Form1: TForm1
     TabOrder = 2
   end
   object BAddSolution: TButton
-    Left = 248
-    Top = 438
+    Left = 192
+    Top = 433
     Width = 129
     Height = 25
     Caption = 'Find different solution'
     Enabled = False
     TabOrder = 3
     OnClick = BAddSolutionClick
+  end
+  object BReduce: TButton
+    Left = 352
+    Top = 433
+    Width = 97
+    Height = 25
+    Caption = 'Reduce Puzzle'
+    TabOrder = 4
+    Visible = False
   end
   object PopupMenu1: TPopupMenu
     Left = 480
