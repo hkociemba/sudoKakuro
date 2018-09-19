@@ -755,7 +755,7 @@ end;
 procedure TForm1.BAddSolutionClick(Sender: TObject);
 begin
   addSolution;
-  solution.Clear; //!!!
+  solution.Clear;
   GetConsoleOutput('java.exe -server  -jar org.sat4j.core.jar cnf.txt',
     output, errors);
 
