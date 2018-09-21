@@ -16,6 +16,9 @@ type
     CheckOutlineBoxes: TCheckBox;
     BAddSolution: TButton;
     BReduce: TButton;
+    GroupBox1: TGroupBox;
+    CBSudokuX: TCheckBox;
+    CBSudokuP: TCheckBox;
     procedure PasteClick(Sender: TObject);
     procedure BSolveClick(Sender: TObject);
     procedure BAddSolutionClick(Sender: TObject);
@@ -368,6 +371,69 @@ begin
 
 end;
 
+procedure sudokuX_clauses(clauses: TStringList);
+var
+  k, k2, num: Integer;
+  s: String;
+begin
+  for num := 1 to DIM do
+  begin
+    s := '';
+    for k := 0 to DIM - 1 do // iterate over diagonal
+      s := s + varname(k, k, num) + ' ';
+    clauses.Add(s + '0');
+    Inc(n_clauses_eff);
+
+    s := '';
+    for k := 0 to DIM - 1 do // iterate over antidiagonal
+      s := s + varname(DIM - 1 - k, k, num) + ' ';
+    clauses.Add(s + '0');
+    Inc(n_clauses_eff);
+
+    for k := 0 to DIM - 2 do
+      for k2 := k + 1 to DIM - 1 do
+      begin
+        clauses.Add('-' + varname(k, k, num) + ' -' + varname(k2, k2,
+          num) + ' 0');
+        Inc(n_clauses_eff);
+      end;
+    for k := 0 to DIM - 2 do
+      for k2 := k + 1 to DIM - 1 do
+      begin
+        clauses.Add('-' + varname(DIM - 1 - k, k, num) + ' -' +
+          varname(DIM - 1 - k2, k2, num) + ' 0');
+        Inc(n_clauses_eff);
+      end;
+  end;
+end;
+
+procedure sudokuP_clauses(clauses: TStringList);
+var
+  pos, blk, blk2, num: Integer;
+  s: String;
+begin
+  for pos := 0 to DIM - 1 do // positions
+  begin
+    for num := 1 to DIM do
+    begin
+      // each pos contains each number at least once, dim^2 clauses
+      s := '';
+      for blk := 0 to DIM - 1 do // iterate over blocks
+        s := s + varname(bk_to_r(blk, pos), bk_to_c(blk, pos), num) + ' ';
+      clauses.Add(s + '0');
+      Inc(n_clauses_eff);
+      // never two same numbers in same position, dim^2*Binomial(dim,2) clauses
+      for blk := 0 to DIM - 2 do
+        for blk2 := blk + 1 to DIM - 1 do
+        begin
+          clauses.Add('-' + varname(bk_to_r(blk, pos), bk_to_c(blk, pos), num) +
+            ' -' + varname(bk_to_r(blk2, pos), bk_to_c(blk2, pos), num) + ' 0');
+          Inc(n_clauses_eff);
+        end;
+    end;
+  end;
+end;
+
 function custom_split(input: string): TArray<string>;
 var
   delimiterSet: array [0 .. 1] of char;
@@ -497,6 +563,10 @@ begin
   block_clauses(clauses);
   dp_clauses(clauses);
   sumClauses(clauses);
+  if Form1.CBSudokuX.Checked then
+    sudokuX_clauses(clauses);
+  if Form1.CBSudokuP.Checked then
+    sudokuP_clauses(clauses);
 
   clauses.Strings[1] := 'p cnf ' + IntToStr(n_variables) + ' ' +
     IntToStr(n_clauses_eff);
@@ -606,11 +676,9 @@ begin
   defstring := makeDefString(sl);
   if not initSums(defstring) then
   begin
-    Memo1.Lines.Add
-      ('+-------------------------------------------+');
+    Memo1.Lines.Add('+-------------------------------------------+');
     Memo1.Lines.Add('| Cannot paste puzzle! Wrong format.        |');
-    Memo1.Lines.Add
-      ('+-------------------------------------------+');
+    Memo1.Lines.Add('+-------------------------------------------+');
     Memo1.Lines.Add('');
     sl.Free;
     Exit;
@@ -762,8 +830,7 @@ procedure TForm1.BAddSolutionClick(Sender: TObject);
 begin
   addSolution;
   solution.Clear;
-  GetConsoleOutput('java.exe -jar org.sat4j.core.jar cnf.txt',
-    output, errors);
+  GetConsoleOutput('java.exe -jar org.sat4j.core.jar cnf.txt', output, errors);
 
   if decode_solution(output, solution) = true then
     PrintCurrentPuzzle(rc_set);
